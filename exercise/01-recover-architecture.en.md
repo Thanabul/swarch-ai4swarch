@@ -53,4 +53,9 @@ Check **at least five** dependencies in Run B's table against the files. Open th
 ## Reflect (2–3 sentences each)
 
 1. Compare A and B. What could the agent **not** know from the `.proto` file alone, and why?
+ans:Run A found the nine gRPC services but no dependencies at all, because a `.proto` file only describes what each service offers, not who calls it. It also could not see containers without a proto interface, such as `frontend`, `redis-cart` and `loadgenerator`. Run B could draw 17 dependencies because the Kubernetes manifests give each caller the callee's address (`*_SERVICE_ADDR` env vars), which is direct evidence of who talks to whom.
+
 2. Which **one** mistake would mislead a new team member most if the diagram were published without checking?
+ans:The most misleading mistake is that `shoppingassistantservice` is missing from the diagram. A new team member would believe `frontend` only talks to backends over gRPC, and would not know there is an extra HTTP dependency (`frontend/handlers.go`), so they could break it when changing the frontend or miss it when debugging.
+
+_(Drafted with AI help, checked and edited by me.)_
