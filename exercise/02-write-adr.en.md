@@ -33,11 +33,10 @@ requirement: <paste R-12 here>
 
 | Criterion | Run a | Run b |
 |---|---|---|
-| Uses the scenario's numbers (latency, peak, MailFast limits)? | | |
-| Options considered (list them) | | |
-| Handles "exactly once" loyalty points and MailFast's rate limit? How? | | |
-| Anything invented (a number, tool or fact not in the scenario)? | | |
-
+| Uses the scenario's numbers (latency, peak, MailFast limits)? | No. It had no numbers, so latency, peak load and MailFast limits are all listed as Open questions (#3, #4, #7). | Yes, all of them: p95 ≤ 500 ms, 200 orders/s, MailFast p95 1.5 s / p99 8 s / 0.5 % errors / 50 per s, points within 1 min exactly once, team and ops constraints. It also computes from them: 75 % of emails over the limit at peak, a backlog of 9,000 emails per minute, about 75 MailFast calls in flight. |
+| Options considered (list them) | A: synchronous direct calls; B: publish/subscribe via a message broker; C: a post-order orchestrator service | 1: synchronous gRPC; 2: in-process async goroutines; 3: RabbitMQ events (self-hosted); 4: Kafka event log (self-hosted) |
+| Handles "exactly once" loyalty points and MailFast's rate limit? How? | Exactly once: idempotency on order ID (unique constraint in the loyalty store). Rate limit: not handled, because the limit was unknown; only generic retries, backoff and a DLQ. | Exactly once: at-least-once delivery plus an idempotent `loyaltyservice` that stores the `order_id` in the same transaction as the points and acks only after commit. Rate limit: the email consumer is throttled to ≤ 50 emails/s across all replicas, and the backlog waits in the queue. |
+| Anything invented (a number, tool or fact not in the scenario)? | No numbers invented, and guesses about the current system are labelled [Inferred]. But two claims don't fit the scenario: it recommends "prefer a managed broker" (the company prefers self-hosted), and it says events "can be replayed", which is not true for every broker (e.g. RabbitMQ deletes consumed messages). | No scenario numbers invented, and the code references to `main.go` are correct. Weak spots: the Kafka "cons" cell ends with a broken, unfinished sentence ("more than 200 events/s needs [Inferred]"), and the publish time ("few ms") is only a guess (labelled [Inferred]). |
 ## Take ownership: your final ADR
 
 You are the architect. Copy `outputs/2b-adr.md` to `docs/adr/0002-<short-title>.md` and edit it **yourself** until you would sign it. Don't ask the agent to do this part.
