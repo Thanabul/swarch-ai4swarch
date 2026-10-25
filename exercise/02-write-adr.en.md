@@ -48,6 +48,9 @@ You will defend this ADR in front of a review board in Part B, so make sure you 
 
 | # | What you changed from the AI's draft | Why |
 |---|---|---|
-| 1 | | |
-| 2 | | |
-| 3 | | |
+| 1 | Set **Deciders** to my name and added a note that the ADR is based on the AI draft | The AI left Deciders open; I am the architect who signs this ADR |
+| 2 | Fixed the broken, unfinished sentence in the Kafka "Cons" cell | The AI's text was incomplete |
+| 3 | Diagram: `frontend` technology is **Go** and Customer → `frontend` is **HTTP** (removed [Inferred]) | I verified this in Task 1: `src/frontend/*.go` and the `frontend-external` http port |
+| 4 | **Decision:** accept the email delay at the 11.11 peak; the confirmation page tells customers the email may take a few minutes; alert on queue age | An email is not needed to complete an order. Waiting for MailFast to raise its limit would block the release and add cost |
+| 5 | **Decision:** `emailservice` deduplicates on `order_id` (a sent log), plus a MailFast idempotency key if supported; added a duplicate-email test | The AI accepted possible duplicate emails; duplicate confirmations confuse customers |
+| 6 | Kept the AI's handling of a broker outage (3-node cluster, log and replay) and marked it as an **accepted risk** | I did not add a transactional outbox yet, because `checkoutservice` has no store today; this stays as Open question 4 |
