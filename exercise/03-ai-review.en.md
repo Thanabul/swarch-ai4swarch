@@ -17,4 +17,4 @@ The agent writes a one-page ATAM-style review to [`outputs/3-review.md`](outputs
 
 **Don't act on the review yet.** Read it, commit it, and bring it to the review board in Part B. The board will decide which of its findings matter.
 
-- **My first impression of the AI's review** (one sentence): …
+- **My first impression of the AI's review** (one sentence): The review was more specific than I expected: it found the event-loss risk that I had kept from the AI draft (decision 6) and calculated a 30-minute email delay for a 10-minute peak, but some points (such as RabbitMQ streams) come from general knowledge, not from the scenario.
