@@ -38,13 +38,17 @@ Check **at least five** dependencies in Run B's table against the files. Open th
 
 | Caller → Callee | AI's evidence | Verified? ✅ / ❌ / ❓ | What you found |
 |---|---|---|---|
-| | | | |
-| | | | |
-| | | | |
-| | | | |
-| | | | |
+| `frontend` → `cartservice` | `frontend.yaml` `CART_SERVICE_ADDR` (L73-74) | ✅ | L73-74: `CART_SERVICE_ADDR = "cartservice:7070"`, matches the AI |
+| `checkoutservice` → `paymentservice` | `checkoutservice.yaml` `PAYMENT_SERVICE_ADDR` (L61-62) | ✅ | L61-62: `"paymentservice:50051"`. The code also calls it: `src/checkoutservice/main.go` L116 reads the env var, L123 connects with gRPC, L370 calls `PaymentService.Charge` |
+| `checkoutservice` → `emailservice` | `checkoutservice.yaml` `EMAIL_SERVICE_ADDR` (L63-64) | ✅ | L63-64: `"emailservice:5000"`. `main.go` L380 calls `SendOrderConfirmation` |
+| `recommendationservice` → `productcatalogservice` | `recommendationservice.yaml` `PRODUCT_CATALOG_SERVICE_ADDR` (L60-61) | ✅ | L60-61: `"productcatalogservice:3550"`, matches the AI |
+| `cartservice` → `redis-cart` | `cartservice.yaml` `REDIS_ADDR` (L50-51) | ✅ | L50-51: `"redis-cart:6379"`. The code uses it: `src/cartservice/src/Startup.cs` L29 reads `REDIS_ADDR` |
 
-- **Wrong or missing** in Run B (false dependencies, missing ones, containers to question): …
+- **Wrong or missing** in Run B (false dependencies, missing ones, containers to question):
+  - **Missing container:** `shoppingassistantservice` exists in `src/` and `frontend` calls it over **HTTP**, not gRPC (`src/frontend/main.go` L139 `SHOPPING_ASSISTANT_SERVICE_ADDR`, `handlers.go` L464 `"http://" + ...`). Run B only listed it under Gaps because it has no manifest.
+  - **Missing optional dependency:** `checkoutservice` connects to an OpenTelemetry collector over gRPC when `ENABLE_TRACING=1` (`main.go` L90, L164-165, `COLLECTOR_SERVICE_ADDR`). This is invisible in the K8s manifests.
+  - **Container to question:** `loadgenerator` is drawn inside the system boundary, but it is a dev/test traffic tool, not part of the shop (it is commented out of `kustomization.yaml`).
+  - **Weak:** languages are all "Not evidenced" because Run B could not see `src/`.
 
 ## Reflect (2–3 sentences each)
 
